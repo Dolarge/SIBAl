@@ -12,13 +12,34 @@ namespace TestMySpline
 
     class Program
     {
+        public class WaveLengthData
+        {
+            public string NM { get; set; }
+            public string N { get; set; }
+            public string K { get; set; }
+        }
+
         public class SiData
         {
             public string NM { get; set; }
             public string N { get; set; }
             public string K { get; set; }
         }
-      
+
+        public class SiNData
+        {
+            public string NM { get; set; }
+            public string N { get; set; }
+            public string K { get; set; }
+        }
+
+        public class SIO2Data
+        {
+            public string NM { get; set; }
+            public string N { get; set; }
+            public string K { get; set; }
+        }
+
         static void Main(string[] args)
         {
             //TestTdm();
@@ -157,10 +178,14 @@ namespace TestMySpline
             //파일 읽고 -> 클래스에 파일 데이터(nm,n,k)저장 -> stringToSingle -> 계산 -> 그래프 그리기(Plot)
             //파일 입력
             string[] Silines = File.ReadAllLines("C://SiN.txt", Encoding.Default);
-            //파일 라인 수
-            int silineNum = Silines.Length;
+            string[] WaveData = File.ReadAllLines("c://SiO2 2nm_on_Si.dat", Encoding.Default);
 
+
+            List<WaveLengthData> waveLengthDatas = new List<WaveLengthData>();
             List<SiData> ReadData = new List<SiData>();
+            List<SiNData> SINDATA = new List<SiNData>();
+            List<SIO2Data> sIO2Datas = new List<SIO2Data>();
+
 
             //x,y 배열
             float ValX = 0.0f, ValY1 = 0.0f, ValY2 = 0.0f;
@@ -200,7 +225,7 @@ namespace TestMySpline
                 List<float> ListOfFloatN = new List<float>();
                 List<float> ListOfFloatK = new List<float>();
                
-                for (int i = 3; i < silineNum; i++)
+                for (int i = 3; i < Silines.Length; i++)
                 {
                     ValX = float.Parse(ReadData[i].NM);
                     ValY1 = float.Parse(ReadData[i].N);
@@ -313,33 +338,31 @@ namespace TestMySpline
         private static void PlotSplineSolution(string title, float[] x, float[] y, float[] xs, float[] ys, string path, float[] qPrime = null)
         {
             var chart = new Chart();
-            chart.Size = new Size(600, 400);
+            chart.Size = new Size(4024, 2000);
             chart.Titles.Add(title);
             chart.Legends.Add(new Legend("Legend"));
 
             ChartArea ca = new ChartArea("DefaultChartArea");
-            ca.AxisX.Title = "X";
-            ca.AxisY.Title = "Y";
+            ca.AxisX.Title = "X(파장)";
+            ca.AxisY.Title = "Y(N)";
             chart.ChartAreas.Add(ca);
 
             Series s1 = CreateSeries(chart, "Spline", CreateDataPoints(xs, ys), Color.Blue, MarkerStyle.None);
-            Series s2 = CreateSeries(chart, "Original", CreateDataPoints(x, y), Color.Green, MarkerStyle.Diamond);
+            //Series s2 = CreateSeries(chart, "Original", CreateDataPoints(x, y), Color.Green, MarkerStyle.Diamond);
 
-            chart.Series.Add(s2);
+            //chart.Series.Add(s2);
             chart.Series.Add(s1);
 
-            if (qPrime != null)
-            {
-                Series s3 = CreateSeries(chart, "Slope", CreateDataPoints(xs, qPrime), Color.Red, MarkerStyle.None);
-                chart.Series.Add(s3);
-            }
+ 
 
             ca.RecalculateAxesScale();
             ca.AxisX.Minimum = Math.Floor(ca.AxisX.Minimum);
             ca.AxisX.Maximum = Math.Ceiling(ca.AxisX.Maximum);
             int nIntervals = (x.Length - 1);
+
+
             nIntervals = Math.Max(4, nIntervals);
-            ca.AxisX.Interval = (ca.AxisX.Maximum - ca.AxisX.Minimum) / nIntervals;
+            ca.AxisX.Interval = 30;//(ca.AxisX.Maximum - ca.AxisX.Minimum) / nIntervals;
 
             // Save
             if (File.Exists(path))
@@ -374,7 +397,7 @@ namespace TestMySpline
                 YValueType = ChartValueType.Double,
                 Legend = chart.Legends[0].Name,
                 IsVisibleInLegend = true,
-                ChartType = SeriesChartType.Line,
+                ChartType = SeriesChartType.Spline,
                 Name = seriesName,
                 ChartArea = chart.ChartAreas[0].Name,
                 MarkerStyle = markerStyle,

@@ -102,10 +102,10 @@ namespace TestMySpline
 		/// </summary>
 		private int GetNextXIndex(float x)
 		{
-			//if (x < xOrig[_lastIndex])	//LastIndex 254에 에러
-			//{
-			//	throw new ArgumentException("The X values to evaluate must be sorted.");
-			//}
+			if (x < xOrig[_lastIndex])	//LastIndex 254에 에러
+			{
+				throw new ArgumentException("The X values to evaluate must be sorted.");
+			}
 
 			while ((_lastIndex < xOrig.Length - 2) && (x > xOrig[_lastIndex + 1]))
 			{
